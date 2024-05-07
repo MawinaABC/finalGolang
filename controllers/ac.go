@@ -16,6 +16,9 @@ func CategoryList(c *gin.Context) {
 			"Category of product": products[i].Category,
 		})
 	}
+	c.JSON(200, gin.H{
+		"info only for api": "to place an order, go to the link localhost:3000/home/order",
+	})
 }
 
 func ProductList(c *gin.Context) {
@@ -66,11 +69,24 @@ func AddToCart(c *gin.Context) {
 		Status:       1,
 	}
 	initializers.DB.Create(&cart)
-
+	userCart := getAllProductFromCart(claims.UserId)
+	c.JSON(200, gin.H{
+		"message": "item added to cart successfully",
+		"user cart": userCart,
+		"total price": countTotalPrice(userCart),
+	})
 }
 
 func getAllProductFromCart(id uint) []models.Cart {
 	var cart []models.Cart
 	initializers.DB.Where("user_id = ?, status = ?", id, 1).Find(&cart)
-	
+	return cart
+}
+
+func countTotalPrice(cart []models.Cart) float64 {
+	var count float64
+	for i:=0; i<len(cart); i++ {
+		count+=cart[i].ProductPrice
+	}
+	return count
 }
