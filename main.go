@@ -18,6 +18,7 @@ func main() {
 	r.GET("/home/:id", middlewares.ReqAuth(), controllers.ProductList)
 	r.GET("/home/:id/:idd", middlewares.ReqAuth(), controllers.GetProduct)
 	r.POST("/home/:id/:idd", middlewares.ReqAuth(), controllers.AddToCart)
+	r.POST("/home/order", middlewares.ReqAuth(), controllers.Ordering)
 	r.POST("/signup", controllers.SignUp)
 	r.POST("/login", controllers.Login)
 	r.POST("/logout", controllers.Logout)
