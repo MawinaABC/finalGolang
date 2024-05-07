@@ -21,6 +21,33 @@ func CategoryList(c *gin.Context) {
 	})
 }
 
+func Ordering(c *gin.Context) {
+	cookie, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(401, err.Error())
+		return
+	}
+
+	claims, err := utils.ParseToken(cookie)
+	if err != nil {
+		c.JSON(401, gin.H{"error": err.Error()})
+		return
+	}
+
+	cart := getAllProductFromCart(claims.UserId)
+	totalPrice := countTotalPrice(cart)
+	order := models.Order{
+		OrderItem:  cart,
+		TotalPrice: totalPrice,
+	}
+	initializers.DB.Create(&order)
+
+	c.JSON(200, gin.H{
+		"message":    "success",
+		"order info": order,
+	})
+}
+
 func ProductList(c *gin.Context) {
 	id := c.Param("id")
 	var products []models.Product
@@ -71,8 +98,8 @@ func AddToCart(c *gin.Context) {
 	initializers.DB.Create(&cart)
 	userCart := getAllProductFromCart(claims.UserId)
 	c.JSON(200, gin.H{
-		"message": "item added to cart successfully",
-		"user cart": userCart,
+		"message":     "success",
+		"user cart":   userCart,
 		"total price": countTotalPrice(userCart),
 	})
 }
@@ -85,8 +112,16 @@ func getAllProductFromCart(id uint) []models.Cart {
 
 func countTotalPrice(cart []models.Cart) float64 {
 	var count float64
-	for i:=0; i<len(cart); i++ {
-		count+=cart[i].ProductPrice
+	for i := 0; i < len(cart); i++ {
+		count += cart[i].ProductPrice
 	}
 	return count
+}
+
+func updateAllCart(cart []models.Cart) {
+	for i := 0; i < len(cart); i++ {
+		initializers.DB.Model(&cart[i]).Updates(models.Cart{
+			Status: 0,
+		})
+	}
 }
