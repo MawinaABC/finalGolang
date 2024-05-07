@@ -44,6 +44,7 @@ func Ordering(c *gin.Context) {
 	} else {
 		order := models.Order{
 			OrderItem:  cart,
+			UserName:   user.Name,
 			TotalPrice: totalPrice,
 			Status:     1,
 		}
@@ -139,11 +140,28 @@ func CreateProduct(c *gin.Context) {
 	initializers.DB.Create(&product)
 	c.JSON(200, gin.H{
 		"message":              "success",
-		"Updated product list": product,
+		"updated product list": product,
 	})
 }
 
 func UpdateProduct(c *gin.Context) {
+	cookie, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(401, err.Error())
+		return
+	}
+
+	claims, err := utils.ParseToken(cookie)
+	if err != nil {
+		c.JSON(401, gin.H{"error": err.Error()})
+		return
+	}
+
+	if claims.Role != "admin" {
+		c.JSON(401, gin.H{"error": "User is not admin"})
+		return
+	}
+
 	id := c.Param("id")
 	var existingProduct, product models.Product
 	initializers.DB.First(&existingProduct, id)
@@ -160,7 +178,32 @@ func UpdateProduct(c *gin.Context) {
 	})
 	c.JSON(200, gin.H{
 		"message":         "success",
-		"Updated product": existingProduct,
+		"updated product": existingProduct,
+	})
+}
+
+func IndexProduct(c *gin.Context) {
+	cookie, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(401, err.Error())
+		return
+	}
+
+	claims, err := utils.ParseToken(cookie)
+	if err != nil {
+		c.JSON(401, gin.H{"error": err.Error()})
+		return
+	}
+
+	if claims.Role != "admin" {
+		c.JSON(401, gin.H{"error": "User is not admin"})
+		return
+	}
+
+	var products []models.Product
+	initializers.DB.Find(&products)
+	c.JSON(200, gin.H{
+		"product list": products,
 	})
 }
 
