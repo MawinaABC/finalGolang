@@ -45,6 +45,7 @@ func Ordering(c *gin.Context) {
 		order := models.Order{
 			OrderItem:  cart,
 			TotalPrice: totalPrice,
+			Status:     1,
 		}
 		initializers.DB.Create(&order)
 		initializers.DB.Model(&user).Updates(models.User{Amount: user.Amount - totalPrice})
