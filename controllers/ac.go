@@ -36,16 +36,24 @@ func Ordering(c *gin.Context) {
 
 	cart := getAllProductFromCart(claims.UserId)
 	totalPrice := countTotalPrice(cart)
-	order := models.Order{
-		OrderItem:  cart,
-		TotalPrice: totalPrice,
+	var user models.User
+	initializers.DB.First(&user, claims.UserId)
+	if totalPrice > user.Amount {
+		c.JSON(200, gin.H{"error": "The user does not have enough credits"})
+		return
+	} else {
+		order := models.Order{
+			OrderItem:  cart,
+			TotalPrice: totalPrice,
+		}
+		initializers.DB.Create(&order)
+		initializers.DB.Model(&user).Updates(models.User{Amount: user.Amount - totalPrice})
+		c.JSON(200, gin.H{
+			"message":    "success",
+			"order info": order,
+		})
+		updateAllCart(cart)
 	}
-	initializers.DB.Create(&order)
-
-	c.JSON(200, gin.H{
-		"message":    "success",
-		"order info": order,
-	})
 }
 
 func ProductList(c *gin.Context) {

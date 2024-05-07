@@ -16,6 +16,7 @@ func SignUp(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+	user.Amount = 100_000
 
 	var existingUser models.User
 	initializers.DB.Where("email = ?", user.Email).First(&existingUser)
