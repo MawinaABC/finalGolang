@@ -207,6 +207,33 @@ func IndexProduct(c *gin.Context) {
 	})
 }
 
+func GetProductForAdmin(c *gin.Context) {
+	cookie, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(401, err.Error())
+		return
+	}
+
+	claims, err := utils.ParseToken(cookie)
+	if err != nil {
+		c.JSON(401, gin.H{"error": err.Error()})
+		return
+	}
+
+	if claims.Role != "admin" {
+		c.JSON(401, gin.H{"error": "User is not admin"})
+		return
+	}
+
+	id := c.Param("id")
+	var product models.Product
+	initializers.DB.First(&product, id)
+
+	c.JSON(200, gin.H{
+		"product": product,
+	})
+}
+
 func getAllProductFromCart(id uint) []models.Cart {
 	var cart []models.Cart
 	initializers.DB.Where("user_id = ?, status = ?", id, 1).Find(&cart)
