@@ -113,6 +113,57 @@ func AddToCart(c *gin.Context) {
 	})
 }
 
+func CreateProduct(c *gin.Context) {
+	cookie, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(401, err.Error())
+		return
+	}
+
+	claims, err := utils.ParseToken(cookie)
+	if err != nil {
+		c.JSON(401, gin.H{"error": err.Error()})
+		return
+	}
+
+	if claims.Role != "admin" {
+		c.JSON(401, gin.H{"error": "User is not admin"})
+		return
+	}
+
+	var product models.Product
+	if err := c.ShouldBindJSON(&product); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	initializers.DB.Create(&product)
+	c.JSON(200, gin.H{
+		"message":              "success",
+		"Updated product list": product,
+	})
+}
+
+func UpdateProduct(c *gin.Context) {
+	id := c.Param("id")
+	var existingProduct, product models.Product
+	initializers.DB.First(&existingProduct, id)
+	if err := c.ShouldBindJSON(&product); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	initializers.DB.Model(&existingProduct).Updates(models.Product{
+		Name:        product.Name,
+		Category:    product.Category,
+		Description: product.Description,
+		Price:       product.Price,
+	})
+	c.JSON(200, gin.H{
+		"message":         "success",
+		"Updated product": existingProduct,
+	})
+}
+
 func getAllProductFromCart(id uint) []models.Cart {
 	var cart []models.Cart
 	initializers.DB.Where("user_id = ?, status = ?", id, 1).Find(&cart)
