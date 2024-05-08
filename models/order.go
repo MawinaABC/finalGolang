@@ -6,5 +6,6 @@ type Order struct {
 	gorm.Model
 	OrderItem  []Cart  `json:"order_item"`
 	UserName   string  `json:"user_name"`
+	UserEmail  string  `json:"user_email"`
 	TotalPrice float64 `json:"total_price"`
 }

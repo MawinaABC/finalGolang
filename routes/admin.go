@@ -12,4 +12,5 @@ func AdminRoutes(r *gin.Engine) {
 	r.GET("/admin/:id", middlewares.ReqAuth(), controllers.GetProductForAdmin)
 	r.PUT("/admin/:id", middlewares.ReqAuth(), controllers.UpdateProduct)
 	r.DELETE("/admin/:id", middlewares.ReqAuth(), controllers.DeleteProduct)
+	r.GET("/admin/order", middlewares.ReqAuth(), controllers.IndexOrder)
 }

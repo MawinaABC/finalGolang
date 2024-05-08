@@ -5,6 +5,7 @@ import (
 	"github.com/MawinaABC/finalGolang/models"
 	"github.com/MawinaABC/finalGolang/utils"
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 func GetProductForAdmin(c *gin.Context) {
@@ -151,4 +152,44 @@ func IndexProduct(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"product list": products,
 	})
+}
+
+func IndexOrder(c *gin.Context) {
+	cookie, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(401, err.Error())
+		return
+	}
+
+	claims, err := utils.ParseToken(cookie)
+	if err != nil {
+		c.JSON(401, gin.H{"error": err.Error()})
+		return
+	}
+
+	if claims.Role != "admin" {
+		c.JSON(401, gin.H{"error": "User is not admin"})
+		return
+	}
+
+	var order []models.Order
+	initializers.DB.Find(&order)
+
+	if len(order) == 0 {
+		c.JSON(401, gin.H{"error": "User doesn't have any order"})
+		return
+	}
+
+	for i := 0; i < len(order); i++ {
+		var cart []models.Cart
+		initializers.DB.Find(&cart, "order_id = ?", order[i].ID)
+		if len(cart) == 0 {
+			continue
+		}
+		c.JSON(200, gin.H{
+			"user email":                  order[i].UserEmail,
+			"order #" + strconv.Itoa(i+1): cart,
+			"total price":                 order[i].TotalPrice,
+		})
+	}
 }
