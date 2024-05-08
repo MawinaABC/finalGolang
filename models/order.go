@@ -7,5 +7,4 @@ type Order struct {
 	OrderItem  []Cart  `json:"order_item"`
 	UserName   string  `json:"user_name"`
 	TotalPrice float64 `json:"total_price"`
-	Status     int     `json:"status"`
 }

@@ -56,7 +56,6 @@ func Ordering(c *gin.Context) {
 			OrderItem:  cart,
 			UserName:   user.Name,
 			TotalPrice: totalPrice,
-			Status:     1,
 		}
 		initializers.DB.Create(&order)
 		initializers.DB.Model(&user).Updates(models.User{Amount: user.Amount - totalPrice})
@@ -170,6 +169,9 @@ func DeleteCart(c *gin.Context) {
 	}
 
 	initializers.DB.Delete(&models.Cart{}, id)
+	c.JSON(200, gin.H{
+		"message": "deleted successfully",
+	})
 }
 
 func AddToCart(c *gin.Context) {
