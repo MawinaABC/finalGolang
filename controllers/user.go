@@ -312,3 +312,17 @@ func getAllProductByCategory(category string) []models.Product {
 	initializers.DB.Find(&products, "category = ?", category)
 	return products
 }
+
+func CreateComment(c *gin.Context) {
+	var comment models.Comment
+	if err := c.ShouldBindJSON(&comment); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	initializers.DB.Create(models.Comment{
+		Text: comment.Text,
+	})
+	c.JSON(200, gin.H{
+		"comment": comment.Text,
+	})
+}

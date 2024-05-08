@@ -16,4 +16,5 @@ func UserRoutes(r *gin.Engine) {
 	r.GET("/home/cart", middlewares.ReqAuth(), controllers.IndexCart)
 	r.GET("/home/cart/:id", middlewares.ReqAuth(), controllers.GetCart)
 	r.POST("/home/cart/:id", middlewares.ReqAuth(), controllers.DeleteCart)
+	r.POST("home/:id/:idd/feedback", middlewares.ReqAuth(), controllers.CreateComment)
 }
