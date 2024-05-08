@@ -7,5 +7,6 @@ type Cart struct {
 	ProductName  string  `json:"product_name"`
 	ProductPrice float64 `json:"product_price"`
 	Status       int     `json:"status"`
-	gorm.Model   `json:"gorm.Model"`
+	OrderID      uint    `json:"order_id"`
+	gorm.Model
 }
