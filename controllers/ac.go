@@ -66,7 +66,7 @@ func Ordering(c *gin.Context) {
 func ProductList(c *gin.Context) {
 	id := c.Param("id")
 	var product models.Product
-	initializers.DB.Find(product, id)
+	initializers.DB.First(&product, id)
 	products := getAllProductByCategory(product.Category)
 	for i := 0; i < len(products); i++ {
 		c.JSON(200, gin.H{
@@ -241,7 +241,7 @@ func GetProductForAdmin(c *gin.Context) {
 
 func getAllProductFromCart(id uint) []models.Cart {
 	var cart []models.Cart
-	initializers.DB.Where("user_id = ?, status = ?", id, 1).Find(&cart)
+	initializers.DB.Find(&cart, "user_id = ? AND status = ?", id, 1)
 	return cart
 }
 
