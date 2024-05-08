@@ -23,6 +23,7 @@ func main() {
 	r.POST("/admin/create", middlewares.ReqAuth(), controllers.CreateProduct)
 	r.GET("/admin/:id", middlewares.ReqAuth(), controllers.GetProductForAdmin)
 	r.PUT("/admin/:id", middlewares.ReqAuth(), controllers.UpdateProduct)
+	r.DELETE("/admin/:id", middlewares.ReqAuth(), controllers.DeleteProduct)
 	r.POST("/signup", controllers.SignUp)
 	r.POST("/login", controllers.Login)
 	r.POST("/logout", controllers.Logout)
