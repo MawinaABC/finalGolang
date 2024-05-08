@@ -9,14 +9,14 @@ func ReqAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cookie, err := c.Cookie("token")
 		if err != nil {
-			c.JSON(401, gin.H{"error": "unauthorized"})
+			c.JSON(401, gin.H{"error": err.Error()})
 			c.Abort()
 			return
 		}
 
 		claims, err := utils.ParseToken(cookie)
 		if err != nil {
-			c.JSON(401, gin.H{"error": "unauthorized"})
+			c.JSON(401, gin.H{"error": err.Error()})
 			c.Abort()
 			return
 		}

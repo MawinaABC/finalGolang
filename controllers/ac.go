@@ -10,7 +10,12 @@ import (
 func CategoryList(c *gin.Context) {
 	var products []models.Product
 	initializers.DB.Find(&products)
+	set := make(map[string]bool)
 	for i := 0; i < len(products); i++ {
+		if set[products[i].Category] {
+			continue
+		}
+		set[products[i].Category] = true
 		c.JSON(200, gin.H{
 			"ID":                  products[i].ID,
 			"Category of product": products[i].Category,
@@ -60,8 +65,9 @@ func Ordering(c *gin.Context) {
 
 func ProductList(c *gin.Context) {
 	id := c.Param("id")
-	var products []models.Product
-	initializers.DB.Find(&products, id)
+	var product models.Product
+	initializers.DB.Find(product, id)
+	products := getAllProductByCategory(product.Category)
 	for i := 0; i < len(products); i++ {
 		c.JSON(200, gin.H{
 			"ID of product":   products[i].ID,
@@ -77,7 +83,6 @@ func GetProduct(c *gin.Context) {
 	initializers.DB.First(&product, id)
 	c.JSON(200, gin.H{
 		"Name of product": product.Name,
-		"Description":     product.Description,
 		"Price":           product.Price,
 	})
 }
@@ -138,9 +143,10 @@ func CreateProduct(c *gin.Context) {
 		return
 	}
 	initializers.DB.Create(&product)
+
 	c.JSON(200, gin.H{
-		"message":              "success",
-		"updated product list": product,
+		"message":     "success",
+		"new product": product,
 	})
 }
 
@@ -171,10 +177,9 @@ func UpdateProduct(c *gin.Context) {
 	}
 
 	initializers.DB.Model(&existingProduct).Updates(models.Product{
-		Name:        product.Name,
-		Category:    product.Category,
-		Description: product.Description,
-		Price:       product.Price,
+		Name:     product.Name,
+		Category: product.Category,
+		Price:    product.Price,
 	})
 	c.JSON(200, gin.H{
 		"message":         "success",
@@ -254,4 +259,10 @@ func updateAllCart(cart []models.Cart) {
 			Status: 0,
 		})
 	}
+}
+
+func getAllProductByCategory(category string) []models.Product {
+	var products []models.Product
+	initializers.DB.Find(&products, "category = ?", category)
+	return products
 }
